@@ -63,8 +63,8 @@ export async function POST(request: Request) {
     .from("kyc-documents")
     .getPublicUrl(path);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase.from("users") as any)
+  await supabase
+    .from("users")
     .update({
       kyc_status: "pending",
       kyc_document_url: urlData.publicUrl,

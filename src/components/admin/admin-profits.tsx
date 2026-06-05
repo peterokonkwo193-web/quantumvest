@@ -437,7 +437,7 @@ export function AdminProfits() {
                           </span>
                           <span className="text-[10px] text-on-surface-variant">{typeLabel}</span>
                           {p.description && (
-                            <span className="text-[10px] text-on-surface-variant italic">"{p.description}"</span>
+                            <span className="text-[10px] text-on-surface-variant italic">&quot;{p.description}&quot;</span>
                           )}
                         </div>
                         <p className="mt-1 text-[10px] text-on-surface-variant/50">
