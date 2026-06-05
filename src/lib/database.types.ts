@@ -16,6 +16,8 @@ export interface Database {
           kyc_status: KycStatus;
           kyc_reviewed_at: string | null;
           kyc_notes: string | null;
+          kyc_document_url: string | null;
+          kyc_id_number: string | null;
           is_suspended: boolean;
           deleted_at: string | null;
           referral_code: string | null;
@@ -30,6 +32,8 @@ export interface Database {
           kyc_status?: KycStatus;
           kyc_reviewed_at?: string | null;
           kyc_notes?: string | null;
+          kyc_document_url?: string | null;
+          kyc_id_number?: string | null;
           is_suspended?: boolean;
           deleted_at?: string | null;
           referral_code?: string | null;
@@ -43,6 +47,8 @@ export interface Database {
           kyc_status?: KycStatus;
           kyc_reviewed_at?: string | null;
           kyc_notes?: string | null;
+          kyc_document_url?: string | null;
+          kyc_id_number?: string | null;
           is_suspended?: boolean;
           deleted_at?: string | null;
           referral_code?: string | null;
