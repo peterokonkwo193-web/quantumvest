@@ -8,6 +8,8 @@ const schema = z.object({
   network: z.string().max(20).optional(),
   txHash: z.string().max(200).nullable().optional(),
   walletAddress: z.string().max(200).optional(),
+  planId: z.string().max(50).nullable().optional(),
+  planName: z.string().max(120).nullable().optional(),
 });
 
 export async function POST(request: Request) {
@@ -37,13 +39,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Account suspended" }, { status: 403 });
   }
 
-  const { amount, cryptoType, network, txHash, walletAddress } = parsed.data;
+  const { amount, cryptoType, network, txHash, walletAddress, planId, planName } = parsed.data;
 
   const notes = JSON.stringify({
     cryptoType: cryptoType ?? null,
     network: network ?? null,
     txHash: txHash ?? null,
     walletAddress: walletAddress ?? null,
+    planId: planId ?? null,
+    planName: planName ?? null,
   });
 
   const { error } = await supabase.from("transactions").insert({

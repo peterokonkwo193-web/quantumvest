@@ -6,6 +6,7 @@ import { CheckCircle, Copy, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
+import { investmentPlans } from "@/lib/data/investment-plans";
 
 const WALLETS = [
   {
@@ -36,14 +37,22 @@ const WALLETS = [
 
 type Step = "amount" | "address" | "done";
 
+const PLAN_OPTIONS = [
+  { id: "", name: "Not sure yet — general deposit" },
+  ...investmentPlans.map((p) => ({ id: p.id, name: `${p.name} Plan — ${p.roi}% ROI / ${p.duration}` })),
+];
+
 export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState("");
+  const [planId, setPlanId] = useState("");
   const [wallet, setWallet] = useState(WALLETS[0]);
   const [txHash, setTxHash] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+
+  const selectedPlan = investmentPlans.find((p) => p.id === planId) ?? null;
 
   function copy(text: string) {
     navigator.clipboard.writeText(text);
@@ -73,6 +82,8 @@ export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
           network: wallet.network,
           txHash: txHash.trim() || null,
           walletAddress: wallet.address,
+          planId: selectedPlan?.id ?? null,
+          planName: selectedPlan?.name ?? null,
         }),
       });
       const data = await res.json();
@@ -90,6 +101,7 @@ export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
   function reset() {
     setStep("amount");
     setAmount("");
+    setPlanId("");
     setTxHash("");
     setError("");
   }
@@ -118,6 +130,11 @@ export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
           <p className="mt-1 text-xs text-on-surface-variant">
             via {wallet.label} ({wallet.network})
           </p>
+          {selectedPlan && (
+            <p className="mt-1 text-xs text-on-surface-variant">
+              For: <span className="font-bold text-white">{selectedPlan.name} Plan</span>
+            </p>
+          )}
         </div>
 
         <div className="flex justify-center rounded-2xl bg-white p-5">
@@ -179,6 +196,29 @@ export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <div className="space-y-4">
+      <div className="space-y-1">
+        <label className="text-xs text-on-surface-variant">
+          Which plan are you depositing for?{" "}
+          <span className="text-white/40">(shown to admin when reviewing your payment)</span>
+        </label>
+        <select
+          value={planId}
+          onChange={(e) => setPlanId(e.target.value)}
+          className="w-full rounded-xl border border-white/10 bg-surface-container-lowest px-3 py-2 text-sm text-white focus:border-neon focus:outline-none focus:ring-2 focus:ring-neon/20"
+        >
+          {PLAN_OPTIONS.map((p) => (
+            <option key={p.id} value={p.id} className="bg-surface-container-lowest text-white">
+              {p.name}
+            </option>
+          ))}
+        </select>
+        {selectedPlan && (
+          <p className="text-[11px] text-on-surface-variant">
+            Minimum deposit for {selectedPlan.name}: {formatCurrency(selectedPlan.minDeposit)}
+          </p>
+        )}
+      </div>
+
       <div className="space-y-1">
         <label className="text-xs text-on-surface-variant">Amount (USD)</label>
         <Input

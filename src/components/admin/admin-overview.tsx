@@ -51,6 +51,7 @@ type EnrichedDeposit = {
   crypto_type: string | null;
   network: string | null;
   tx_hash: string | null;
+  plan_name: string | null;
 };
 
 const CRYPTO_COLORS: Record<string, string> = {
@@ -214,6 +215,11 @@ export function AdminOverview() {
                           {deposit.crypto_type && (
                             <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${cryptoColor}`}>
                               {deposit.crypto_type}{deposit.network ? ` · ${deposit.network}` : ""}
+                            </span>
+                          )}
+                          {deposit.plan_name && (
+                            <span className="rounded-full border border-neon/30 bg-neon/10 px-2 py-0.5 text-[10px] font-bold text-neon">
+                              Wants: {deposit.plan_name}
                             </span>
                           )}
                         </div>

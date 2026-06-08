@@ -50,6 +50,7 @@ export async function GET() {
       network: notes.network ?? null,
       tx_hash: notes.txHash ?? null,
       wallet_address: notes.walletAddress ?? null,
+      plan_name: notes.planName ?? null,
     };
   });
 

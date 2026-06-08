@@ -26,3 +26,6 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local-only admin/maintenance scripts (may contain credentials)
+scripts/

@@ -31,6 +31,7 @@ type EnrichedDeposit = {
   network: string | null;
   tx_hash: string | null;
   wallet_address: string | null;
+  plan_name: string | null;
 };
 
 type Withdrawal = {
@@ -93,6 +94,11 @@ function DepositCard({
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-bold text-white">{displayName}</span>
             <CryptoBadge type={deposit.crypto_type} network={deposit.network} />
+            {deposit.plan_name && (
+              <span className="rounded-full border border-neon/30 bg-neon/10 px-2 py-0.5 text-[10px] font-bold text-neon">
+                Wants: {deposit.plan_name}
+              </span>
+            )}
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-on-surface-variant">
             <span className="font-bold text-neon text-sm">{formatCurrency(deposit.amount)}</span>
