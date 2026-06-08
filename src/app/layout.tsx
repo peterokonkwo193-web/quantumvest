@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { PriceTicker } from "@/components/layout/price-ticker";
 import { Footer } from "@/components/layout/footer";
+import { AIAssistant } from "@/components/assistant/ai-assistant";
 import { GridBackground } from "@/components/animations/motion-components";
 import "./globals.css";
 import "@/styles/custom.css";
@@ -51,6 +52,7 @@ export default function RootLayout({
         <Navbar />
         <main className="relative z-10 min-h-screen pt-[7.5rem]">{children}</main>
         <Footer />
+        <AIAssistant />
       </body>
     </html>
   );

@@ -60,6 +60,17 @@ type UserProfile = {
   created_at: string;
 };
 
+function greetingForHour(hour: number): string {
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+function firstName(fullName: string | null | undefined): string {
+  if (!fullName) return "Investor";
+  return fullName.trim().split(/\s+/)[0];
+}
+
 export function DashboardPage() {
   const supabase = createClient();
   const isMountedRef = useRef(true);
@@ -70,6 +81,11 @@ export function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeInvestments, setActiveInvestments] = useState<UserInvestment[]>([]);
+  const [greeting, setGreeting] = useState("Welcome");
+
+  useEffect(() => {
+    setGreeting(greetingForHour(new Date().getHours()));
+  }, []);
 
 
 
@@ -203,8 +219,11 @@ export function DashboardPage() {
       <div className="mx-auto max-w-[1600px]">
         <FadeIn className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">Investor Terminal</h1>
-            <p className="label-mono text-on-surface-variant">Welcome back, {profile?.full_name ?? "Investor"}</p>
+            <span className="label-mono text-neon">Investor Terminal</span>
+            <h1 className="mt-1 text-3xl font-bold text-white md:text-4xl">
+              {greeting}, <span className="text-neon neon-glow-text">{firstName(profile?.full_name)}</span>
+            </h1>
+            <p className="mt-1 text-sm text-on-surface-variant">Here&apos;s what&apos;s happening with your investments today.</p>
           </div>
           <div className="flex gap-3">
             <div className="relative">
