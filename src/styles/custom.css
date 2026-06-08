@@ -28,6 +28,19 @@ body {
   background-size: 40px 40px;
 }
 
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: ticker-scroll 40s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
 .neon-glow-text {
   text-shadow: 0 0 15px rgba(198, 255, 0, 0.5);
 }

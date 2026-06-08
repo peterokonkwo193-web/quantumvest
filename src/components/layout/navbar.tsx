@@ -25,7 +25,7 @@ export function Navbar() {
   if (isAuthPage) return null;
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-white/10 bg-surface/60 backdrop-blur-xl shadow-[0_0_20px_rgba(198,255,0,0.1)]">
+    <header className="fixed top-9 z-50 w-full border-b border-white/10 bg-surface/60 backdrop-blur-xl shadow-[0_0_20px_rgba(198,255,0,0.1)]">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-10">
         <Link href="/" className="flex items-center gap-2">
           <Signal className="h-6 w-6 text-neon" fill="#C6FF00" />

@@ -72,6 +72,42 @@ const testimonials = [
     quote: "After years saving in traditional banks, the difference is night and day. My Platinum plan completed its cycle and paid out exactly as promised.",
     initials: "JK",
   },
+  {
+    name: "Amara N.",
+    role: "Freelance Designer",
+    quote: "The dashboard makes everything transparent — I can watch my balance grow in real time. Deposits are confirmed fast and withdrawals never kept me waiting.",
+    initials: "AN",
+  },
+  {
+    name: "David R.",
+    role: "Software Engineer",
+    quote: "I run the numbers for a living and QuantumVest's fixed returns checked out exactly as advertised. Moved from the Silver to the Gold plan after my first payout.",
+    initials: "DR",
+  },
+  {
+    name: "Priya S.",
+    role: "Pharmacist",
+    quote: "Customer support walked me through my first crypto deposit step by step. Two cycles later, I've reinvested my profits straight into the Elite plan.",
+    initials: "PS",
+  },
+  {
+    name: "Tunde A.",
+    role: "Logistics Manager",
+    quote: "What sold me was the live tracking — no guessing games. My Starter plan matured on schedule and the funds hit my wallet balance immediately.",
+    initials: "TA",
+  },
+  {
+    name: "Elena M.",
+    role: "University Lecturer",
+    quote: "I split my savings across two plans to test the waters. Both completed on time and the email notifications kept me informed at every stage.",
+    initials: "EM",
+  },
+  {
+    name: "Robert C.",
+    role: "Small Business Owner",
+    quote: "Three cycles in and not a single delay. The platform feels far more professional than other crypto platforms I've tried — clean, fast, and reliable.",
+    initials: "RC",
+  },
 ];
 
 export function HomePage() {
@@ -250,8 +286,8 @@ export function HomePage() {
             <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">What Our Investors Say</h2>
           </FadeIn>
           <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <FadeIn key={t.name}>
+            {testimonials.map((t, i) => (
+              <FadeIn key={t.name} delay={(i % 3) * 0.1}>
                 <GlassCard className="h-full p-8">
                   <p className="mb-6 leading-relaxed text-on-surface-variant">
                     &ldquo;{t.quote}&rdquo;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
+import { PriceTicker } from "@/components/layout/price-ticker";
 import { Footer } from "@/components/layout/footer";
 import { GridBackground } from "@/components/animations/motion-components";
 import "./globals.css";
@@ -46,8 +47,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${jetbrains.variable} font-sans`}>
         <GridBackground />
+        <PriceTicker />
         <Navbar />
-        <main className="relative z-10 min-h-screen pt-20">{children}</main>
+        <main className="relative z-10 min-h-screen pt-[7.5rem]">{children}</main>
         <Footer />
       </body>
     </html>
