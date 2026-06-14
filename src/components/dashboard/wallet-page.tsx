@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { FadeIn, GlassCard } from "@/components/animations/motion-components";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import { investmentPlans } from "@/lib/data/investment-plans";
 import { createClient } from "@/lib/supabase";
@@ -63,11 +62,6 @@ export function WalletPage() {
   const [profits, setProfits] = useState<AdminProfit[]>([]);
   const [activeTab, setActiveTab] = useState<"overview" | "deposit" | "withdraw">("overview");
 
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [walletAddress, setWalletAddress] = useState("");
-  const [withdrawError, setWithdrawError] = useState("");
-  const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
-  const [withdrawSuccess, setWithdrawSuccess] = useState(false);
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -107,29 +101,6 @@ export function WalletPage() {
 
   const totalExpectedProfit = useMemo(() => investments.reduce((s, i) => s + i.expected_profit, 0), [investments]);
   const totalProfitsReceived = useMemo(() => profits.filter((p) => p.status === "paid").reduce((s, p) => s + p.amount, 0), [profits]);
-
-  async function submitWithdrawal() {
-    if (!withdrawAmount || !walletAddress || withdrawSubmitting) return;
-    setWithdrawSubmitting(true);
-    setWithdrawError("");
-    setWithdrawSuccess(false);
-    const res = await fetch("/api/transactions/withdraw", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: Number(withdrawAmount), walletAddress }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setWithdrawError(data.error ?? "Withdrawal failed.");
-    } else {
-      setWithdrawAmount("");
-      setWalletAddress("");
-      setWithdrawSuccess(true);
-      setTimeout(() => setWithdrawSuccess(false), 5000);
-      load();
-    }
-    setWithdrawSubmitting(false);
-  }
 
   if (loading) {
     return (
@@ -379,50 +350,37 @@ export function WalletPage() {
 
         {/* ── WITHDRAW TAB ── */}
         {activeTab === "withdraw" && (
-          <GlassCard>
-            <h3 className="mb-6 flex items-center gap-2 font-bold text-white">
-              <ArrowUpRight className="h-5 w-5 text-neon" /> Request Withdrawal
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1.5 block text-xs text-on-surface-variant">Amount (USD)</label>
-                <Input
-                  type="number"
-                  placeholder="0.00"
-                  min="1"
-                  value={withdrawAmount}
-                  onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawError(""); }}
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs text-on-surface-variant">Your Wallet Address (BTC / ETH / TRX)</label>
-                <Input
-                  placeholder="Paste your crypto wallet address"
-                  value={walletAddress}
-                  onChange={(e) => { setWalletAddress(e.target.value); setWithdrawError(""); }}
-                />
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-on-surface-variant">
-                Available balance: <span className="font-bold text-neon">{formatCurrency(profile?.wallet_balance ?? 0)}</span>
-                <span className="mx-2">·</span>
-                Withdrawals are reviewed and processed within 24–48 hours.
-              </div>
-              {withdrawError && <p className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">{withdrawError}</p>}
-              {withdrawSuccess && (
-                <div className="flex items-center gap-2 rounded-xl border border-neon/30 bg-neon/10 p-3 text-sm text-neon">
-                  <CheckCircle className="h-4 w-4 shrink-0" /> Withdrawal request submitted! Admin will process it shortly.
-                </div>
-              )}
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={submitWithdrawal}
-                disabled={withdrawSubmitting || !withdrawAmount || !walletAddress}
-              >
-                {withdrawSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {withdrawSubmitting ? "Submitting..." : "Request Withdrawal"}
-              </Button>
+          <GlassCard className="text-center py-12">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-neon/30 bg-neon/10">
+              <ArrowUpRight className="h-8 w-8 text-neon" />
             </div>
+            <h3 className="text-xl font-bold text-white">Withdrawal Request</h3>
+            <p className="mt-3 text-on-surface-variant max-w-sm mx-auto">
+              To withdraw your funds, please contact the admin directly. Your request will be reviewed and processed within <span className="text-white font-bold">24–48 hours</span>.
+            </p>
+            <div className="mt-8 rounded-2xl border border-neon/20 bg-neon/5 p-6 max-w-sm mx-auto text-left space-y-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-neon">Contact Admin</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                  <CheckCircle className="h-4 w-4 text-neon" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">Current Balance</p>
+                  <p className="text-xs text-on-surface-variant">{formatCurrency(profile?.wallet_balance ?? 0)} available</p>
+                </div>
+              </div>
+              <p className="text-xs text-on-surface-variant pt-2 border-t border-white/10">
+                Reach out via the <Link href="/contact" className="text-neon hover:underline font-bold">Contact page</Link> or through your account support channel to request a withdrawal. Include the amount and your wallet address.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="lg"
+              className="mt-6"
+              asChild
+            >
+              <Link href="/contact">Contact Admin for Withdrawal</Link>
+            </Button>
           </GlassCard>
         )}
       </div>
