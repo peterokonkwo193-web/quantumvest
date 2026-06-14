@@ -19,10 +19,10 @@ import { createClient } from "@/lib/supabase";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/clients", label: "Clients", icon: Users, badge: true },
   { href: "/admin/profits", label: "Profit Management", icon: Coins },
   { href: "/admin/plans", label: "Plans", icon: TrendingUp },
-  { href: "/admin/transactions", label: "Transactions", icon: Receipt, badge: true },
+  { href: "/admin/transactions", label: "Transactions", icon: Receipt },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
