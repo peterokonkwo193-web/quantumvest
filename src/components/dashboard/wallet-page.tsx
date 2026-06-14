@@ -350,37 +350,35 @@ export function WalletPage() {
 
         {/* ── WITHDRAW TAB ── */}
         {activeTab === "withdraw" && (
-          <GlassCard className="text-center py-12">
+          <GlassCard className="text-center py-14">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-neon/30 bg-neon/10">
               <ArrowUpRight className="h-8 w-8 text-neon" />
             </div>
             <h3 className="text-xl font-bold text-white">Withdrawal Request</h3>
-            <p className="mt-3 text-on-surface-variant max-w-sm mx-auto">
-              To withdraw your funds, please contact the admin directly. Your request will be reviewed and processed within <span className="text-white font-bold">24–48 hours</span>.
+            <p className="mt-3 text-on-surface-variant max-w-xs mx-auto leading-relaxed">
+              Please contact the admin directly to process your withdrawal. Your funds are safe and requests are handled within <span className="text-white font-bold">24–48 hours</span>.
             </p>
-            <div className="mt-8 rounded-2xl border border-neon/20 bg-neon/5 p-6 max-w-sm mx-auto text-left space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-neon">Contact Admin</p>
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5">
-                  <CheckCircle className="h-4 w-4 text-neon" />
+            <div className="mt-8 rounded-2xl border border-neon/20 bg-neon/5 p-6 max-w-sm mx-auto text-left space-y-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-neon">How to withdraw</p>
+              <div className="space-y-3 text-sm text-on-surface-variant">
+                <div className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neon/20 text-[11px] font-bold text-neon">1</span>
+                  <p>Message the admin with your <span className="text-white">withdrawal amount</span></p>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-white">Current Balance</p>
-                  <p className="text-xs text-on-surface-variant">{formatCurrency(profile?.wallet_balance ?? 0)} available</p>
+                <div className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neon/20 text-[11px] font-bold text-neon">2</span>
+                  <p>Provide your <span className="text-white">crypto wallet address</span> (BTC / USDT / ETH)</p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neon/20 text-[11px] font-bold text-neon">3</span>
+                  <p>Admin will confirm and send funds to your wallet</p>
                 </div>
               </div>
-              <p className="text-xs text-on-surface-variant pt-2 border-t border-white/10">
-                Reach out via the <Link href="/contact" className="text-neon hover:underline font-bold">Contact page</Link> or through your account support channel to request a withdrawal. Include the amount and your wallet address.
-              </p>
+              <div className="border-t border-white/10 pt-4">
+                <p className="text-xs text-on-surface-variant">Your available balance</p>
+                <p className="text-2xl font-bold text-neon mt-1">{formatCurrency(profile?.wallet_balance ?? 0)}</p>
+              </div>
             </div>
-            <Button
-              variant="outline"
-              size="lg"
-              className="mt-6"
-              asChild
-            >
-              <Link href="/contact">Contact Admin for Withdrawal</Link>
-            </Button>
           </GlassCard>
         )}
       </div>

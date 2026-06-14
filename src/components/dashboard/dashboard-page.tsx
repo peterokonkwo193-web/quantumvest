@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   Bell,
   Copy,
+  LineChart,
   Loader2,
   LogOut,
   Settings,
@@ -357,85 +358,51 @@ export function DashboardPage() {
             <GlassCard><h3 className="mb-4 font-bold text-white">Portfolio Growth</h3><PortfolioChart height={280} /></GlassCard>
             <GlassCard><h3 className="mb-4 font-bold text-white">Profit Analytics</h3><ProfitChart height={180} /></GlassCard>
 
-            <GlassCard>
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-bold text-white">Transaction History</h3>
-                <span className="rounded-full bg-neon/10 px-2 py-0.5 text-[10px] font-bold text-neon">Live</span>
-              </div>
-              <div className="space-y-3">
-                {transactions.length === 0 ? (
-                  <p className="text-sm text-on-surface-variant">No transactions yet.</p>
-                ) : (
-                  transactions.map((tx) => {
-                    let planName: string | null = null;
-                    try { planName = JSON.parse((tx as unknown as {notes: string}).notes ?? "{}").planName ?? null; } catch {}
-                    const label =
-                      tx.transaction_type === "profit" ? "Profit Credited by Admin"
-                      : tx.transaction_type === "deposit" ? `Deposit${planName ? ` — ${planName}` : ""}`
-                      : tx.transaction_type === "withdrawal" ? "Withdrawal"
-                      : "Investment";
-                    return (
-                      <div key={tx.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4">
-                        <div className="flex items-center gap-3">
-                          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${
-                            tx.transaction_type === "profit" ? "border-neon/30 bg-neon/10"
-                            : tx.transaction_type === "deposit" ? "border-neon/20 bg-neon/5"
-                            : tx.transaction_type === "withdrawal" ? "border-orange-400/20 bg-orange-400/5"
-                            : "border-white/10 bg-white/5"
-                          }`}>
-                            {tx.transaction_type === "deposit" ? <ArrowDownLeft className="h-4 w-4 text-neon" />
-                            : tx.transaction_type === "withdrawal" ? <ArrowUpRight className="h-4 w-4 text-orange-400" />
-                            : <TrendingUp className="h-4 w-4 text-neon" />}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white">{label}</p>
-                            <p className="text-xs text-on-surface-variant">{new Date(tx.created_at).toLocaleString()}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={`font-mono font-bold ${tx.transaction_type === "withdrawal" ? "text-orange-400" : "text-neon"}`}>
-                            {tx.transaction_type === "withdrawal" ? "-" : "+"}{formatCurrency(tx.amount)}
-                          </p>
-                          <p className={`text-xs ${tx.status === "completed" ? "text-neon/70" : tx.status === "failed" ? "text-red-400" : "text-yellow-400"}`}>
-                            {tx.status}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </GlassCard>
-
-            {/* Profit History from Admin */}
-            {adminProfits.length > 0 && (
-              <GlassCard>
-                <div className="mb-4 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-neon" />
-                  <h3 className="font-bold text-white">Profit History</h3>
-                </div>
-                <div className="space-y-3">
-                  {adminProfits.map((p) => (
-                    <div key={p.id} className="rounded-xl border border-neon/20 bg-neon/5 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-white">
-                            {p.description ?? "Profit Payout"}
-                          </p>
-                          <p className="mt-0.5 text-xs text-on-surface-variant">
-                            {new Date(p.created_at).toLocaleString()} · {p.profit_type}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-bold text-neon">+{formatCurrency(p.amount)}</p>
-                          <p className="text-[10px] text-neon/70">{p.status}</p>
-                        </div>
-                      </div>
+            {/* Trading History link card */}
+            <Link href="/dashboard/trading">
+              <GlassCard className="cursor-pointer transition-all hover:border-neon/50 hover:shadow-[0_0_30px_rgba(198,255,0,0.15)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-neon/30 bg-neon/10">
+                      <LineChart className="h-5 w-5 text-neon" />
                     </div>
-                  ))}
+                    <div>
+                      <p className="font-bold text-white">Trading History</p>
+                      <p className="text-sm text-on-surface-variant">
+                        {transactions.length > 0
+                          ? `${transactions.length} transaction${transactions.length === 1 ? "" : "s"} · tap to view all`
+                          : "View all transactions & profits"}
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-neon/50" />
                 </div>
+                {transactions.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    {transactions.slice(0, 3).map((tx) => {
+                      let planName: string | null = null;
+                      try { planName = JSON.parse((tx as unknown as {notes: string}).notes ?? "{}").planName ?? null; } catch {}
+                      const label =
+                        tx.transaction_type === "profit" ? "Profit Credited by Admin"
+                        : tx.transaction_type === "deposit" ? `Deposit${planName ? ` — ${planName}` : ""}`
+                        : tx.transaction_type === "withdrawal" ? "Withdrawal"
+                        : "Investment";
+                      return (
+                        <div key={tx.id} className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm">
+                          <span className="text-on-surface-variant">{label}</span>
+                          <span className={`font-mono font-bold ${tx.transaction_type === "withdrawal" ? "text-orange-400" : "text-neon"}`}>
+                            {tx.transaction_type === "withdrawal" ? "-" : "+"}{formatCurrency(tx.amount)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                    {transactions.length > 3 && (
+                      <p className="pt-1 text-center text-xs text-neon">+{transactions.length - 3} more →</p>
+                    )}
+                  </div>
+                )}
               </GlassCard>
-            )}
+            </Link>
           </div>
 
           <aside className="col-span-12 space-y-6 lg:col-span-3">
