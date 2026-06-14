@@ -52,6 +52,14 @@ type UserInvestment = {
   end_date: string;
   created_at: string;
 };
+type AdminProfit = {
+  id: string;
+  amount: number;
+  description: string | null;
+  profit_type: string;
+  status: string;
+  created_at: string;
+};
 type UserProfile = {
   id: string;
   full_name: string | null;
@@ -81,6 +89,8 @@ export function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [activeInvestments, setActiveInvestments] = useState<UserInvestment[]>([]);
+  const [adminProfits, setAdminProfits] = useState<AdminProfit[]>([]);
+  const [pendingDeposits, setPendingDeposits] = useState<Transaction[]>([]);
   const [greeting, setGreeting] = useState("Welcome");
 
   useEffect(() => {
@@ -105,14 +115,14 @@ export function DashboardPage() {
     if (!user || !isMountedRef.current) return;
     setUserId(user.id);
 
-    const [profileRes, txRes, notifRes, invRes] = await Promise.all([
+    const [profileRes, txRes, notifRes, invRes, profitRes] = await Promise.all([
       supabase.from("users").select("*").eq("id", user.id).single(),
       supabase
         .from("transactions")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .limit(6),
+        .limit(30),
       supabase
         .from("notifications")
         .select("*")
@@ -125,13 +135,22 @@ export function DashboardPage() {
         .eq("user_id", user.id)
         .eq("status", "active")
         .order("created_at", { ascending: false }),
+      supabase
+        .from("profits")
+        .select("id, amount, description, profit_type, status, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(30),
     ]);
 
     if (!isMountedRef.current) return;
+    const allTx = (txRes.data as unknown as Transaction[]) ?? [];
     setProfile((profileRes.data as unknown as UserProfile) ?? null);
-    setTransactions((txRes.data as unknown as Transaction[]) ?? []);
+    setTransactions(allTx.filter((t) => t.status !== "pending" || t.transaction_type !== "deposit"));
+    setPendingDeposits(allTx.filter((t) => t.transaction_type === "deposit" && t.status === "pending"));
     setNotifications((notifRes.data as unknown as Notification[]) ?? []);
     setActiveInvestments((invRes.data as unknown as UserInvestment[]) ?? []);
+    setAdminProfits((profitRes.data as unknown as AdminProfit[]) ?? []);
     setLoading(false);
   }, [supabase]);
 
@@ -336,64 +355,149 @@ export function DashboardPage() {
             <GlassCard>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-bold text-white">Transaction History</h3>
-                <Button variant="ghost" size="sm">Live</Button>
+                <span className="rounded-full bg-neon/10 px-2 py-0.5 text-[10px] font-bold text-neon">Live</span>
               </div>
               <div className="space-y-3">
                 {transactions.length === 0 ? (
                   <p className="text-sm text-on-surface-variant">No transactions yet.</p>
                 ) : (
-                  transactions.map((tx) => (
-                    <div key={tx.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${
-                          tx.transaction_type === "profit"
-                            ? "border-neon/30 bg-neon/10"
-                            : tx.transaction_type === "deposit"
-                            ? "border-neon/20 bg-neon/5"
-                            : tx.transaction_type === "withdrawal"
-                            ? "border-orange-400/20 bg-orange-400/5"
+                  transactions.map((tx) => {
+                    let planName: string | null = null;
+                    try { planName = JSON.parse((tx as unknown as {notes: string}).notes ?? "{}").planName ?? null; } catch {}
+                    const label =
+                      tx.transaction_type === "profit" ? "Profit Credited by Admin"
+                      : tx.transaction_type === "deposit" ? `Deposit${planName ? ` — ${planName}` : ""}`
+                      : tx.transaction_type === "withdrawal" ? "Withdrawal"
+                      : "Investment";
+                    return (
+                      <div key={tx.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${
+                            tx.transaction_type === "profit" ? "border-neon/30 bg-neon/10"
+                            : tx.transaction_type === "deposit" ? "border-neon/20 bg-neon/5"
+                            : tx.transaction_type === "withdrawal" ? "border-orange-400/20 bg-orange-400/5"
                             : "border-white/10 bg-white/5"
-                        }`}>
-                          {tx.transaction_type === "deposit" ? (
-                            <ArrowDownLeft className="h-4 w-4 text-neon" />
-                          ) : tx.transaction_type === "withdrawal" ? (
-                            <ArrowUpRight className="h-4 w-4 text-orange-400" />
-                          ) : tx.transaction_type === "profit" ? (
-                            <TrendingUp className="h-4 w-4 text-neon" />
-                          ) : (
-                            <TrendingUp className="h-4 w-4 text-on-surface-variant" />
-                          )}
+                          }`}>
+                            {tx.transaction_type === "deposit" ? <ArrowDownLeft className="h-4 w-4 text-neon" />
+                            : tx.transaction_type === "withdrawal" ? <ArrowUpRight className="h-4 w-4 text-orange-400" />
+                            : <TrendingUp className="h-4 w-4 text-neon" />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-white">{label}</p>
+                            <p className="text-xs text-on-surface-variant">{new Date(tx.created_at).toLocaleString()}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-white">
-                            {tx.transaction_type === "profit" ? "Profit Credited" : tx.transaction_type.charAt(0).toUpperCase() + tx.transaction_type.slice(1)}
+                        <div className="text-right">
+                          <p className={`font-mono font-bold ${tx.transaction_type === "withdrawal" ? "text-orange-400" : "text-neon"}`}>
+                            {tx.transaction_type === "withdrawal" ? "-" : "+"}{formatCurrency(tx.amount)}
                           </p>
-                          <p className="font-mono text-xs text-on-surface-variant">{tx.id.slice(0, 8)}</p>
+                          <p className={`text-xs ${tx.status === "completed" ? "text-neon/70" : tx.status === "failed" ? "text-red-400" : "text-yellow-400"}`}>
+                            {tx.status}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-mono font-bold text-white">{formatCurrency(tx.amount)}</p>
-                        <p className={`text-xs ${tx.status === "completed" ? "text-neon" : tx.status === "failed" ? "text-red-400" : "text-yellow-400"}`}>
-                          {tx.status}
-                        </p>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </GlassCard>
+
+            {/* Profit History from Admin */}
+            {adminProfits.length > 0 && (
+              <GlassCard>
+                <div className="mb-4 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-neon" />
+                  <h3 className="font-bold text-white">Profit History</h3>
+                </div>
+                <div className="space-y-3">
+                  {adminProfits.map((p) => (
+                    <div key={p.id} className="rounded-xl border border-neon/20 bg-neon/5 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-white">
+                            {p.description ?? "Profit Payout"}
+                          </p>
+                          <p className="mt-0.5 text-xs text-on-surface-variant">
+                            {new Date(p.created_at).toLocaleString()} · {p.profit_type}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-neon">+{formatCurrency(p.amount)}</p>
+                          <p className="text-[10px] text-neon/70">{p.status}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
           </div>
 
           <aside className="col-span-12 space-y-6 lg:col-span-3">
+            {/* Pending Deposit Notice */}
+            {pendingDeposits.length > 0 && (
+              <GlassCard className="border-yellow-400/30 bg-yellow-400/5">
+                <h3 className="label-mono mb-3 text-yellow-400">Pending Approval</h3>
+                {pendingDeposits.map((dep) => {
+                  let planName: string | null = null;
+                  try { planName = JSON.parse((dep as unknown as {notes: string}).notes ?? "{}").planName ?? null; } catch {}
+                  return (
+                    <div key={dep.id} className="rounded-xl border border-yellow-400/20 bg-yellow-400/5 p-3 text-sm">
+                      <p className="font-bold text-white">{formatCurrency(dep.amount)} deposit</p>
+                      {planName && <p className="mt-0.5 text-xs text-yellow-300">For: {planName}</p>}
+                      <p className="mt-1 text-xs text-on-surface-variant">Submitted {new Date(dep.created_at).toLocaleDateString()} · Awaiting admin approval</p>
+                    </div>
+                  );
+                })}
+              </GlassCard>
+            )}
+
+            {/* My Investment Plans */}
             <GlassCard glow>
-              <h3 className="label-mono mb-4 text-neon">Active Plan</h3>
-              <h4 className="text-xl font-bold text-white">{activePlan?.name ?? "No Plan"}</h4>
-              <div className="mt-4 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-on-surface-variant">ROI</span><span className="font-bold text-neon">{activePlan?.roi ?? 0}%</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Duration</span><span className="text-white">{activePlan?.duration ?? "N/A"}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Active Investments</span><span className="font-mono text-white">{activeInvestments.length}</span></div>
-                <div className="flex justify-between"><span className="text-on-surface-variant">Expected Profit</span><span className="font-mono text-neon">{formatCurrency(totalProfit)}</span></div>
-              </div>
+              <h3 className="label-mono mb-4 text-neon">My Investment Plans</h3>
+              {activeInvestments.length === 0 ? (
+                <div className="text-center py-4">
+                  <p className="text-sm text-on-surface-variant">No active investments yet.</p>
+                  <Link href="/plans" className="mt-2 inline-block text-xs text-neon hover:underline">Browse Plans →</Link>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {activeInvestments.map((inv) => {
+                    const plan = investmentPlans.find((p) => p.id === inv.plan_id);
+                    const start = new Date(inv.start_date);
+                    const end = new Date(inv.end_date);
+                    const now = new Date();
+                    const totalDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / 86400000));
+                    const elapsed = Math.min(totalDays, Math.round((now.getTime() - start.getTime()) / 86400000));
+                    const progress = Math.round((elapsed / totalDays) * 100);
+                    return (
+                      <div key={inv.id} className="rounded-xl border border-neon/20 bg-neon/5 p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-bold text-white text-sm">{plan?.name ?? inv.plan_id} Plan</span>
+                          <span className="rounded-full bg-neon/20 px-2 py-0.5 text-[10px] font-bold text-neon">{plan?.roi ?? 0}% ROI</span>
+                        </div>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between"><span className="text-on-surface-variant">Invested</span><span className="font-bold text-white">{formatCurrency(inv.amount)}</span></div>
+                          <div className="flex justify-between"><span className="text-on-surface-variant">Expected Profit</span><span className="font-bold text-neon">{formatCurrency(inv.expected_profit)}</span></div>
+                          <div className="flex justify-between"><span className="text-on-surface-variant">End Date</span><span className="text-white">{end.toLocaleDateString()}</span></div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="flex justify-between text-[10px] text-on-surface-variant mb-1">
+                            <span>Progress</span><span>{progress}%</span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-white/10">
+                            <div className="h-1.5 rounded-full bg-neon transition-all" style={{ width: `${progress}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="flex justify-between border-t border-white/10 pt-3 text-sm">
+                    <span className="text-on-surface-variant">Total Expected</span>
+                    <span className="font-bold text-neon">{formatCurrency(totalProfit)}</span>
+                  </div>
+                </div>
+              )}
             </GlassCard>
 
             <GlassCard>
