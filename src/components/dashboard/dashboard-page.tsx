@@ -331,14 +331,19 @@ export function DashboardPage() {
 
           <div className="col-span-12 space-y-6 lg:col-span-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              <GlassCard glow>
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-neon" />
-                  <span className="label-mono text-on-surface-variant">Wallet Balance</span>
-                </div>
-                <p className="mt-2 text-3xl font-bold text-white">{formatCurrency(profile?.wallet_balance ?? 0)}</p>
-                <p className="text-sm text-neon">Live from Supabase</p>
-              </GlassCard>
+              <Link href="/dashboard/wallet">
+                <GlassCard glow className="cursor-pointer transition-all hover:border-neon/50 hover:shadow-[0_0_30px_rgba(198,255,0,0.2)]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-5 w-5 text-neon" />
+                      <span className="label-mono text-on-surface-variant">Wallet Balance</span>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-neon/50" />
+                  </div>
+                  <p className="mt-2 text-3xl font-bold text-white">{formatCurrency(profile?.wallet_balance ?? 0)}</p>
+                  <p className="text-sm text-neon">Tap to open wallet →</p>
+                </GlassCard>
+              </Link>
               <GlassCard>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-neon" />
