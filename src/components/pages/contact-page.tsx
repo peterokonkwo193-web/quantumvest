@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const contactInfo = [
-  { icon: Mail, label: "Email", value: "support@quantumvest.com" },
+  { icon: Mail, label: "Email", value: "support@quantumvest0.com" },
   { icon: Phone, label: "Support Hours", value: "Monday – Saturday, 9am – 9pm UTC" },
   { icon: MapPin, label: "Offices", value: "Singapore · London · Dubai" },
   { icon: MessageCircle, label: "Response Time", value: "Within 24 hours" },
