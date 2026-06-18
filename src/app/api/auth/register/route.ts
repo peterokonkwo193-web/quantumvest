@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { checkRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const schema = z.object({
@@ -28,17 +28,18 @@ export async function POST(request: Request) {
   }
 
   const { name, email, password } = parsed.data;
-  const supabase = await createServerSupabaseClient();
 
-  const { data, error } = await supabase.auth.signUp({
+  // Use service role key so we can auto-confirm email and skip verification
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  const { data, error } = await adminClient.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: {
-        full_name: name,
-        role: "user",
-      },
-    },
+    email_confirm: true,
+    user_metadata: { full_name: name, role: "user" },
   });
 
   if (error) {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
   }
 
   if (data.user) {
-    await supabase.from("users").upsert({
+    await adminClient.from("users").upsert({
       id: data.user.id,
       full_name: name,
       email,

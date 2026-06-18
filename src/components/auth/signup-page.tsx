@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle, Signal } from "lucide-react";
+import { Signal } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,15 +11,12 @@ import { Label } from "@/components/ui/label";
 import { NeonParticles } from "@/components/animations/motion-components";
 import { createClient } from "@/lib/supabase";
 
-const steps = ["Account", "Verify", "Complete"];
-
 export function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlan = searchParams.get("plan");
   const supabase = createClient();
 
-  const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,17 +45,11 @@ export function SignupPage() {
       return;
     }
 
-    setStep(1);
-    setLoading(false);
-  }
-
-  async function handleComplete() {
-    setLoading(true);
+    // Auto sign-in immediately after registration
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-
     if (signInError) {
       setError(signInError.message);
+      setLoading(false);
       return;
     }
 
@@ -83,82 +74,42 @@ export function SignupPage() {
           animate={{ opacity: 1, y: 0 }}
           className="glass-card w-full max-w-[560px] rounded-[32px] p-10"
         >
-          <div className="mb-8 flex justify-between">
-            {steps.map((s, i) => (
-              <div
-                key={s}
-                className={`label-mono text-xs ${i <= step ? "text-neon" : "text-on-surface-variant"} ${i === step ? "border-b-2 border-neon pb-1" : ""}`}
-              >
-                {s}
-              </div>
-            ))}
-          </div>
-
-          {selectedPlan && step === 0 && (
+          {selectedPlan && (
             <div className="mb-6 rounded-xl border border-neon/30 bg-neon/5 p-4">
               <p className="label-mono text-neon">Selected Plan: {selectedPlan.toUpperCase()}</p>
             </div>
           )}
 
-          {step === 0 && (
-            <>
-              <h1 className="mb-2 text-2xl font-bold text-white">Create Account</h1>
-              <p className="mb-8 text-on-surface-variant">Initialize your investor profile</p>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirm">Confirm Password</Label>
-                  <Input id="confirm" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                </div>
-                {error && <p className="text-sm text-red-400">{error}</p>}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Creating..." : "Continue"}
-                </Button>
-              </form>
-            </>
-          )}
+          <h1 className="mb-2 text-2xl font-bold text-white">Create Account</h1>
+          <p className="mb-8 text-on-surface-variant">Join QuantumVest and start investing today</p>
 
-          {step === 1 && (
-            <div className="text-center">
-              <CheckCircle className="mx-auto mb-4 h-16 w-16 text-neon" />
-              <h2 className="text-xl font-bold text-white">Verify Your Email</h2>
-              <p className="mt-2 text-on-surface-variant">
-                A verification email was sent to {email}. After verifying, continue.
-              </p>
-              <Button className="mt-8" onClick={() => setStep(2)}>I&apos;ve Verified — Continue</Button>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
-          )}
-
-          {step === 2 && (
-            <div className="text-center">
-              <CheckCircle className="mx-auto mb-4 h-16 w-16 text-neon" />
-              <h2 className="text-xl font-bold text-white">Account Ready</h2>
-              <p className="mt-2 text-on-surface-variant">
-                Your account is live. KYC review takes up to 24 hours.
-              </p>
-              <Button className="mt-8" onClick={handleComplete} disabled={loading}>
-                {loading ? "Loading..." : "Enter Dashboard"}
-              </Button>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-          )}
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Confirm Password</Label>
+              <Input id="confirm" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+            </div>
+            {error && <p className="text-sm text-red-400">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating your account..." : "Create Account & Enter Dashboard"}
+            </Button>
+          </form>
 
-          {step === 0 && (
-            <p className="mt-6 text-center text-sm text-on-surface-variant">
-              Already have an account?{" "}
-              <Link href="/login" className="text-neon hover:underline">Sign in</Link>
-            </p>
-          )}
+          <p className="mt-6 text-center text-sm text-on-surface-variant">
+            Already have an account?{" "}
+            <Link href="/login" className="text-neon hover:underline">Sign in</Link>
+          </p>
         </motion.div>
       </main>
     </div>

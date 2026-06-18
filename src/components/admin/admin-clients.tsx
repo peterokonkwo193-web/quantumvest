@@ -305,7 +305,72 @@ export function AdminClients() {
         </GlassCard>
       </FadeIn>
 
-      {/* ── SECTION 2: Send Profit ── */}
+      {/* ── SECTION 2: All Clients ── */}
+      <FadeIn>
+        <GlassCard>
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-neon/20 bg-neon/10">
+              <User className="h-5 w-5 text-neon" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                All Clients
+                <span className="rounded-full bg-neon/20 px-2.5 py-0.5 text-xs font-bold text-neon">
+                  {users.length}
+                </span>
+              </h2>
+              <p className="text-xs text-on-surface-variant">Every registered investor on the platform</p>
+            </div>
+          </div>
+
+          {users.length === 0 ? (
+            <p className="text-sm text-on-surface-variant">No clients yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-left text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+                    <th className="pb-3 pr-4">Name</th>
+                    <th className="pb-3 pr-4">Email</th>
+                    <th className="pb-3 pr-4">Joined</th>
+                    <th className="pb-3 text-right">Balance</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {users.map((u) => {
+                    const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+                    return (
+                      <tr key={u.id} className="group">
+                        <td className="py-3 pr-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-xs font-bold text-neon">
+                              {initials}
+                            </div>
+                            <span className="font-bold text-white whitespace-nowrap">{u.full_name ?? "—"}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4">
+                          <span className="text-on-surface-variant">{u.email}</span>
+                        </td>
+                        <td className="py-3 pr-4 whitespace-nowrap">
+                          <span className="text-xs text-on-surface-variant">
+                            {new Date((u as unknown as {created_at: string}).created_at).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="py-3 text-right">
+                          <span className="font-bold text-neon">{formatCurrency(u.wallet_balance)}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </GlassCard>
+      </FadeIn>
+
+      {/* ── SECTION 3: Send Profit ── */}
       <FadeIn>
         <GlassCard>
           <div className="mb-6 flex items-center gap-3">
