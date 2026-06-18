@@ -40,7 +40,7 @@ export function Footer() {
               A professional crypto investment platform offering fixed-return plans, real-time profit tracking, and institutional-grade security.
             </p>
             <p className="text-xs text-on-surface-variant/60">
-              support@quantumvest0.com
+              quantumvest0.com
             </p>
           </div>
           {Object.entries(footerLinks).map(([title, links]) => (
