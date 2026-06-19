@@ -25,7 +25,7 @@ const footerLinks = {
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname === "/login" || pathname === "/signup") return null;
+  if (pathname === "/login" || pathname === "/signup" || pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) return null;
 
   return (
     <footer className="border-t border-white/10 bg-surface-container-lowest/50">

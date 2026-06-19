@@ -5,6 +5,7 @@ import { PriceTicker } from "@/components/layout/price-ticker";
 import { Footer } from "@/components/layout/footer";
 import { AIAssistant } from "@/components/assistant/ai-assistant";
 import { GridBackground } from "@/components/animations/motion-components";
+import { MainContent } from "@/components/layout/main-content";
 import "./globals.css";
 import "@/styles/custom.css";
 
@@ -50,7 +51,7 @@ export default function RootLayout({
         <GridBackground />
         <PriceTicker />
         <Navbar />
-        <main className="relative z-10 min-h-screen pt-[7.5rem]">{children}</main>
+        <MainContent>{children}</MainContent>
         <Footer />
         <AIAssistant />
       </body>

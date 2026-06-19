@@ -21,8 +21,9 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isAppPage = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
 
-  if (isAuthPage) return null;
+  if (isAuthPage || isAppPage) return null;
 
   return (
     <header className="fixed top-9 z-50 w-full border-b border-white/10 bg-surface/60 backdrop-blur-xl shadow-[0_0_20px_rgba(198,255,0,0.1)]">

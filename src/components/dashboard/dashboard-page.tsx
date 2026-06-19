@@ -5,12 +5,9 @@ import Link from "next/link";
 import {
   ArrowDownLeft,
   ArrowUpRight,
-  Bell,
   Copy,
   LineChart,
   Loader2,
-  LogOut,
-  Settings,
   Shield,
   TrendingUp,
   Users,
@@ -106,8 +103,6 @@ export function DashboardPage() {
   const [withdrawSubmitting, setWithdrawSubmitting] = useState(false);
   const [withdrawSuccess, setWithdrawSuccess] = useState(false);
 
-  const [showNotifications, setShowNotifications] = useState(false);
-
   const load = useCallback(async () => {
     const {
       data: { user },
@@ -193,8 +188,6 @@ export function DashboardPage() {
     ? investmentPlans.find((p) => p.id === activePlanId) ?? investmentPlans.find((p) => p.id === "gold")
     : investmentPlans.find((p) => p.id === "gold");
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
-
   async function submitWithdrawal() {
     if (!withdrawAmount || !walletAddress || withdrawSubmitting) return;
     setWithdrawSubmitting(true);
@@ -221,11 +214,6 @@ export function DashboardPage() {
     }
   }
 
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login";
-  }
-
   if (loading) {
     return (
       <div className="section-padding flex min-h-[50vh] items-center justify-center">
@@ -237,53 +225,12 @@ export function DashboardPage() {
   return (
     <div className="section-padding">
       <div className="mx-auto max-w-[1600px]">
-        <FadeIn className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <span className="label-mono text-neon">Investor Terminal</span>
-            <h1 className="mt-1 text-3xl font-bold text-white md:text-4xl">
-              {greeting}, <span className="text-neon neon-glow-text">{firstName(profile?.full_name)}</span>
-            </h1>
-            <p className="mt-1 text-sm text-on-surface-variant">Here&apos;s what&apos;s happening with your investments today.</p>
-          </div>
-          <div className="flex gap-3">
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowNotifications((v) => !v)}
-                aria-label="Notifications"
-              >
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-neon text-[10px] font-bold text-black">
-                    {unreadCount}
-                  </span>
-                )}
-              </Button>
-              {showNotifications && (
-                <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl">
-                  <p className="label-mono mb-3 text-on-surface-variant">Notifications</p>
-                  <div className="space-y-2 text-sm">
-                    {notifications.length === 0 ? (
-                      <p className="text-on-surface-variant">No notifications yet.</p>
-                    ) : (
-                      notifications.map((n) => (
-                        <div
-                          key={n.id}
-                          className={`rounded-lg border p-3 ${n.is_read ? "border-white/10" : "border-neon/20 bg-neon/5"}`}
-                        >
-                          <p className="font-bold text-white">{n.title}</p>
-                          <p className="text-xs text-on-surface-variant">{n.message}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <Button variant="ghost" size="icon" aria-label="Settings"><Settings className="h-5 w-5" /></Button>
-            <Button variant="ghost" size="icon" onClick={logout} aria-label="Log out"><LogOut className="h-5 w-5" /></Button>
-          </div>
+        <FadeIn className="mb-8">
+          <span className="label-mono text-neon">Investor Terminal</span>
+          <h1 className="mt-1 text-3xl font-bold text-white md:text-4xl">
+            {greeting}, <span className="text-neon neon-glow-text">{firstName(profile?.full_name)}</span>
+          </h1>
+          <p className="mt-1 text-sm text-on-surface-variant">Here&apos;s what&apos;s happening with your investments today.</p>
         </FadeIn>
 
         <div className="grid grid-cols-12 gap-6">
@@ -430,7 +377,7 @@ export function DashboardPage() {
               {activeInvestments.length === 0 ? (
                 <div className="text-center py-4">
                   <p className="text-sm text-on-surface-variant">No active investments yet.</p>
-                  <Link href="/plans" className="mt-2 inline-block text-xs text-neon hover:underline">Browse Plans →</Link>
+                  <Link href="/dashboard/plans" className="mt-2 inline-block text-xs text-neon hover:underline">Browse Plans →</Link>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -514,7 +461,7 @@ export function DashboardPage() {
                 <Link href="/security"><Shield className="mr-2 h-4 w-4" /> Security</Link>
               </Button>
               <Button variant="ghost" className="flex-1" asChild>
-                <Link href="/plans"><Users className="mr-2 h-4 w-4" /> Plans</Link>
+                <Link href="/dashboard/plans"><Users className="mr-2 h-4 w-4" /> Plans</Link>
               </Button>
             </div>
           </aside>

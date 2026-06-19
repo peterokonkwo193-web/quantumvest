@@ -21,7 +21,7 @@ function fmtPrice(n: number) {
 export function PriceTicker() {
   const pathname = usePathname();
   const [prices, setPrices] = useState<CoinPrice[]>([]);
-  const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
 
   useEffect(() => {
     let active = true;
