@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdminResponse, requireAdmin } from "@/lib/admin-auth";
+import { sendProfitEmail } from "@/lib/emailjs";
 
 const schema = z.object({
   user_id: z.string().uuid("Invalid user ID"),
@@ -92,6 +93,32 @@ export async function POST(request: Request) {
       p_admin_id: user.id,
     });
     if (payError) return NextResponse.json({ error: payError.message }, { status: 400 });
+
+    // Fetch client details for email + in-app notification
+    const { data: clientProfile } = await supabase
+      .from("users")
+      .select("full_name, email, wallet_balance")
+      .eq("id", user_id)
+      .single();
+
+    // In-app notification
+    await supabase.from("notifications").insert({
+      user_id,
+      title: "Profit Credited",
+      message: `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been credited to your wallet${description ? ` — ${description}` : ""}.`,
+    });
+
+    // Email notification (non-blocking)
+    if (clientProfile?.email) {
+      sendProfitEmail({
+        toName:      clientProfile.full_name ?? "",
+        toEmail:     clientProfile.email,
+        profitLabel: profit_type === "manual" ? "Profit Payout" : profit_type,
+        amount,
+        description: description ?? null,
+        newBalance:  Number(clientProfile.wallet_balance ?? 0),
+      }).catch(() => {});
+    }
   }
 
   return NextResponse.json({ profit });
