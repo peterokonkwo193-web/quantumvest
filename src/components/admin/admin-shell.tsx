@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Menu,
   Receipt,
+  Signal,
   TrendingUp,
   Users,
   X,
@@ -70,8 +71,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const NavContent = () => (
     <>
       <div className="mb-8 px-2">
-        <span className="label-mono text-neon text-xs">QuantumVest</span>
-        <h2 className="text-lg font-bold text-white">Admin Console</h2>
+        <div className="flex items-center gap-2 mb-1">
+          <Signal className="h-5 w-5 text-neon" fill="#C6FF00" />
+          <span className="font-extrabold tracking-tighter text-neon">QUANTUMVEST</span>
+        </div>
+        <p className="text-xs text-on-surface-variant label-mono">Admin Console</p>
       </div>
       <nav className="flex flex-1 flex-col gap-1">
         {navItems.map((item) => {
@@ -103,7 +107,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </nav>
       <div className="mt-auto flex flex-col gap-2 border-t border-white/10 pt-4">
         <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard">Investor View</Link>
+          <Link href="/dashboard" onClick={() => setMobileOpen(false)}>Investor View</Link>
         </Button>
         <Button variant="ghost" size="sm" onClick={logout}>
           Logout
@@ -115,15 +119,30 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-black">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(198,255,0,0.06)_0%,_transparent_50%)]" />
-      <button
-        type="button"
-        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/80 text-neon lg:hidden"
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label="Toggle menu"
-      >
-        {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
 
+      {/* Mobile top bar */}
+      <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center gap-3 border-b border-white/10 bg-black/90 px-4 backdrop-blur-xl lg:hidden">
+        <button
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-neon"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+        <div className="flex items-center gap-2">
+          <Signal className="h-4 w-4 text-neon" fill="#C6FF00" />
+          <span className="font-extrabold tracking-tighter text-sm text-neon">QUANTUMVEST</span>
+        </div>
+        <span className="label-mono text-xs text-on-surface-variant">Admin</span>
+        {pendingCount > 0 && (
+          <span className="ml-auto flex h-6 min-w-6 items-center justify-center rounded-full bg-neon px-1.5 text-[11px] font-extrabold text-black">
+            {pendingCount > 99 ? "99+" : pendingCount}
+          </span>
+        )}
+      </div>
+
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
@@ -131,16 +150,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         />
       )}
 
+      {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r border-white/10 bg-black/90 p-6 backdrop-blur-xl transition-transform lg:translate-x-0",
+          "fixed left-0 top-0 z-40 flex h-full w-64 flex-col border-r border-white/10 bg-black/95 p-6 backdrop-blur-xl transition-transform lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <NavContent />
       </aside>
 
-      <main className="lg:pl-64">
+      {/* Main content — pt-14 on mobile to clear the top bar */}
+      <main className="min-h-screen pt-14 lg:pl-64 lg:pt-0">
         <div className="section-padding">{children}</div>
       </main>
     </div>
