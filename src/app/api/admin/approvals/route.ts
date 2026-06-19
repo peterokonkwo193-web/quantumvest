@@ -102,20 +102,70 @@ export async function POST(request: Request) {
       }
 
       if (status === "completed" || action === "approve") {
-        const { error } = await supabase.rpc("approve_deposit", {
-          p_transaction_id: id,
-          p_admin_id: user.id,
-        });
-        if (error) throw error;
+        // 1. Mark transaction completed
+        const { error: txErr } = await supabase
+          .from("transactions")
+          .update({ status: "completed" })
+          .eq("id", id);
+        if (txErr) throw txErr;
 
-        // Send deposit confirmed email
+        // 2. Credit wallet balance
+        const { data: currentUser, error: fetchErr } = await supabase
+          .from("users")
+          .select("wallet_balance")
+          .eq("id", tx.user_id)
+          .single();
+        if (fetchErr) throw fetchErr;
+        const newBalance = Number(currentUser.wallet_balance) + tx.amount;
+        const { error: balErr } = await supabase
+          .from("users")
+          .update({ wallet_balance: newBalance })
+          .eq("id", tx.user_id);
+        if (balErr) throw balErr;
+
+        // 3. If deposit had a plan, create the investment record
+        let notes: Record<string, string> = {};
+        try { notes = JSON.parse(tx.notes ?? "{}"); } catch {}
+        if (notes.planId) {
+          const { data: planData } = await supabase
+            .from("investment_plans")
+            .select("min_deposit, max_deposit, roi, duration_days")
+            .eq("id", notes.planId)
+            .single();
+
+          // Fallback plan data from static config
+          const roi = planData?.roi ?? 10;
+          const durationDays = planData?.duration_days ?? 7;
+          const expectedProfit = Math.round(tx.amount * (roi / 100) * 100) / 100;
+          const startDate = new Date();
+          const endDate = new Date(startDate.getTime() + durationDays * 86400000);
+
+          await supabase.from("user_investments").insert({
+            user_id:         tx.user_id,
+            plan_id:         notes.planId,
+            amount:          tx.amount,
+            expected_profit: expectedProfit,
+            status:          "active",
+            start_date:      startDate.toISOString(),
+            end_date:        endDate.toISOString(),
+          });
+        }
+
+        // 4. Notify client
+        await supabase.from("notifications").insert({
+          user_id: tx.user_id,
+          title: "Deposit Approved",
+          message: `Your deposit of $${tx.amount.toLocaleString()} has been verified and credited to your wallet${notes.planName ? ` — ${notes.planName} plan activated` : ""}.`,
+        });
+
+        // 5. Send email (non-blocking)
         getUserDetails(tx.user_id).then((profile) => {
           if (profile?.email) {
             sendDepositApprovedEmail({
               toName:     profile.full_name ?? "",
               toEmail:    profile.email,
               amount:     tx.amount,
-              newBalance: Number(profile.wallet_balance) + tx.amount,
+              newBalance,
             }).catch(() => {});
           }
         });
@@ -125,6 +175,15 @@ export async function POST(request: Request) {
           .update({ status: "failed" })
           .eq("id", id);
         if (error) throw error;
+
+        // Notify client of rejection
+        let notes: Record<string, string> = {};
+        try { notes = JSON.parse(tx.notes ?? "{}"); } catch {}
+        await supabase.from("notifications").insert({
+          user_id: tx.user_id,
+          title:   "Deposit Not Approved",
+          message: `Your deposit of $${tx.amount.toLocaleString()} could not be verified${notes.planName ? ` for the ${notes.planName} plan` : ""}. Please contact support.`,
+        });
       }
     } else if (type === "kyc") {
       const { error } = await supabase.rpc("update_kyc_status", {

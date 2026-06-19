@@ -42,10 +42,10 @@ const PLAN_OPTIONS = [
   ...investmentPlans.map((p) => ({ id: p.id, name: `${p.name} Plan — ${p.roi}% ROI / ${p.duration}` })),
 ];
 
-export function DepositFlow({ onSuccess }: { onSuccess: () => void }) {
+export function DepositFlow({ onSuccess, initialPlanId }: { onSuccess: () => void; initialPlanId?: string }) {
   const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState("");
-  const [planId, setPlanId] = useState("");
+  const [planId, setPlanId] = useState(initialPlanId ?? "");
   const [wallet, setWallet] = useState(WALLETS[0]);
   const [txHash, setTxHash] = useState("");
   const [submitting, setSubmitting] = useState(false);

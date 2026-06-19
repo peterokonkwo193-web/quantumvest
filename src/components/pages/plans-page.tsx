@@ -31,7 +31,7 @@ const iconMap = {
   sparkles: Sparkles,
 };
 
-function PlanCard({ plan, index }: { plan: InvestmentPlan; index: number }) {
+function PlanCard({ plan, index, isLoggedIn }: { plan: InvestmentPlan; index: number; isLoggedIn: boolean }) {
   const Icon = iconMap[plan.icon as keyof typeof iconMap] ?? Rocket;
   const profitAtMin = calculateExpectedProfit(plan.minDeposit, plan.roi);
   const profitAtMax = plan.maxDeposit
@@ -135,8 +135,8 @@ function PlanCard({ plan, index }: { plan: InvestmentPlan; index: number }) {
         className="w-full"
         asChild
       >
-        <Link href={`/signup?plan=${plan.id}`}>
-          Start with {plan.name}
+        <Link href={isLoggedIn ? `/dashboard/wallet?plan=${plan.id}&tab=deposit` : `/signup?plan=${plan.id}`}>
+          {isLoggedIn ? `Invest in ${plan.name}` : `Start with ${plan.name}`}
         </Link>
       </Button>
     </motion.div>
@@ -146,17 +146,18 @@ function PlanCard({ plan, index }: { plan: InvestmentPlan; index: number }) {
 export function PlansPage() {
   const [plans, setPlans] = useState<InvestmentPlan[]>(investmentPlans);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     async function load() {
       const supabase = createClient();
-      const { data } = await supabase
-        .from("investment_plans")
-        .select("*")
-        .order("min_deposit", { ascending: true });
-
-      if (data?.length) {
-        setPlans(data.map((p, i) => mapDbPlanToInvestmentPlan(p, i)));
+      const [{ data: { user } }, plansRes] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from("investment_plans").select("*").order("min_deposit", { ascending: true }),
+      ]);
+      setIsLoggedIn(!!user);
+      if (plansRes.data?.length) {
+        setPlans(plansRes.data.map((p, i) => mapDbPlanToInvestmentPlan(p, i)));
       }
       setLoading(false);
     }
@@ -209,7 +210,7 @@ export function PlansPage() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {plans.map((plan, i) => (
-              <PlanCard key={plan.id} plan={plan} index={i} />
+              <PlanCard key={plan.id} plan={plan} index={i} isLoggedIn={isLoggedIn} />
             ))}
           </div>
         )}

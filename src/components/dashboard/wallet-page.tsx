@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowDownLeft,
   ArrowLeft,
@@ -53,6 +54,9 @@ type UserProfile = {
 export function WalletPage() {
   const supabase = createClient();
   const isMounted = useRef(true);
+  const searchParams = useSearchParams();
+  const urlPlan = searchParams.get("plan") ?? "";
+  const urlTab = searchParams.get("tab");
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -60,7 +64,9 @@ export function WalletPage() {
   const [pendingDeposits, setPendingDeposits] = useState<Transaction[]>([]);
   const [investments, setInvestments] = useState<UserInvestment[]>([]);
   const [profits, setProfits] = useState<AdminProfit[]>([]);
-  const [activeTab, setActiveTab] = useState<"overview" | "deposit" | "withdraw">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "deposit" | "withdraw">(
+    urlTab === "deposit" ? "deposit" : "overview"
+  );
 
 
   const load = useCallback(async () => {
@@ -344,7 +350,7 @@ export function WalletPage() {
             <h3 className="mb-6 flex items-center gap-2 font-bold text-white">
               <ArrowDownLeft className="h-5 w-5 text-neon" /> Make a Deposit
             </h3>
-            <DepositFlow onSuccess={() => { setActiveTab("overview"); load(); }} />
+            <DepositFlow initialPlanId={urlPlan} onSuccess={() => { setActiveTab("overview"); load(); }} />
           </GlassCard>
         )}
 
