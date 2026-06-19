@@ -135,7 +135,7 @@ function PlanCard({ plan, index, isLoggedIn }: { plan: InvestmentPlan; index: nu
         className="w-full"
         asChild
       >
-        <Link href={isLoggedIn ? `/dashboard/wallet?plan=${plan.id}&tab=deposit` : `/signup?plan=${plan.id}`}>
+        <Link href={`/dashboard/wallet?plan=${plan.id}&tab=deposit`}>
           {isLoggedIn ? `Invest in ${plan.name}` : `Start with ${plan.name}`}
         </Link>
       </Button>

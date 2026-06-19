@@ -53,7 +53,14 @@ export function SignupPage() {
       return;
     }
 
-    router.push(selectedPlan ? "/plans" : "/dashboard");
+    const redirect = searchParams.get("redirect");
+    if (redirect && redirect.startsWith("/")) {
+      router.push(redirect);
+    } else if (selectedPlan) {
+      router.push(`/dashboard/wallet?plan=${selectedPlan}&tab=deposit`);
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   }
 

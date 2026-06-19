@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Signal } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase";
 
 export function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +33,12 @@ export function LoginPage() {
       return;
     }
 
-    router.push(data.user?.app_metadata?.role === "admin" ? "/admin" : "/dashboard");
+    const redirect = searchParams.get("redirect");
+    if (redirect && redirect.startsWith("/")) {
+      router.push(redirect);
+    } else {
+      router.push(data.user?.app_metadata?.role === "admin" ? "/admin" : "/dashboard");
+    }
     router.refresh();
   }
 
@@ -82,7 +88,13 @@ export function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-sm text-on-surface-variant">
-            No account? <Link href="/signup" className="font-bold text-neon hover:underline">Initialize Account</Link>
+            No account?{" "}
+            <Link
+              href={searchParams.get("redirect") ? `/signup?redirect=${encodeURIComponent(searchParams.get("redirect")!)}` : "/signup"}
+              className="font-bold text-neon hover:underline"
+            >
+              Initialize Account
+            </Link>
           </p>
         </motion.div>
       </main>
