@@ -350,7 +350,7 @@ export function WalletPage() {
 
         {/* ── WITHDRAW TAB ── */}
         {activeTab === "withdraw" && (
-          <GlassCard className="text-center py-14">
+          <GlassCard className="text-center py-8 md:py-14">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-neon/30 bg-neon/10">
               <ArrowUpRight className="h-8 w-8 text-neon" />
             </div>

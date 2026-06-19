@@ -147,7 +147,7 @@ export function TradingPage() {
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all ${
+                className={`flex-1 rounded-xl py-3 text-sm font-semibold transition-all ${
                   activeTab === tab
                     ? "bg-neon text-black shadow-[0_0_16px_rgba(198,255,0,0.4)]"
                     : "text-on-surface-variant hover:text-white"

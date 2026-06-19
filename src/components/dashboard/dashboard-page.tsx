@@ -261,7 +261,7 @@ export function DashboardPage() {
                 )}
               </Button>
               {showNotifications && (
-                <div className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl">
+                <div className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-[#0a0a0a] p-4 shadow-2xl">
                   <p className="label-mono mb-3 text-on-surface-variant">Notifications</p>
                   <div className="space-y-2 text-sm">
                     {notifications.length === 0 ? (

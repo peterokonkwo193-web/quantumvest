@@ -57,11 +57,11 @@ export function Navbar() {
         </div>
 
         <button
-          className="text-white md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-white md:hidden"
           onClick={() => setMobileOpen(!mobileOpen)}
           aria-label="Toggle menu"
         >
-          {mobileOpen ? <X /> : <Menu />}
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </nav>
 
@@ -74,7 +74,7 @@ export function Navbar() {
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "label-mono py-2",
+                  "label-mono py-3 text-base",
                   pathname === link.href ? "text-neon" : "text-on-surface-variant"
                 )}
               >

@@ -117,7 +117,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(198,255,0,0.06)_0%,_transparent_50%)]" />
       <button
         type="button"
-        className="fixed left-4 top-4 z-50 rounded-lg border border-white/10 bg-black/80 p-2 text-neon lg:hidden"
+        className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/80 text-neon lg:hidden"
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle menu"
       >

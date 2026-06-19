@@ -192,115 +192,119 @@ export function AdminClients() {
               <p className="mt-1 text-sm text-on-surface-variant">No pending payment requests right now.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/10 text-left text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                    <th className="pb-3 pr-4">Client</th>
-                    <th className="pb-3 pr-4">Email</th>
-                    <th className="pb-3 pr-4">Signed Up</th>
-                    <th className="pb-3 pr-4">Investment Plan</th>
-                    <th className="pb-3 pr-4">Amount</th>
-                    <th className="pb-3 pr-4">Via</th>
-                    <th className="pb-3 pr-4">TX Hash</th>
-                    <th className="pb-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {deposits.map((d) => {
-                    const isProcessing = processing === d.id;
-                    const name = d.user_full_name ?? d.user_email ?? "Unknown";
-                    const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-                    const cryptoCls = CRYPTO_COLORS[d.crypto_type ?? ""] ?? "text-white border-white/20 bg-white/5";
-                    return (
-                      <tr key={d.id} className="group">
-                        {/* Name */}
-                        <td className="py-4 pr-4">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-xs font-bold text-neon">
-                              {initials}
+            <>
+              {/* Mobile card layout */}
+              <div className="space-y-4 md:hidden">
+                {deposits.map((d) => {
+                  const isProcessing = processing === d.id;
+                  const name = d.user_full_name ?? d.user_email ?? "Unknown";
+                  const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+                  const cryptoCls = CRYPTO_COLORS[d.crypto_type ?? ""] ?? "text-white border-white/20 bg-white/5";
+                  return (
+                    <div key={d.id} className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-sm font-bold text-neon">
+                          {initials}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-white truncate">{name}</p>
+                          <p className="text-xs text-on-surface-variant truncate">{d.user_email ?? "—"}</p>
+                        </div>
+                        <p className="ml-auto font-extrabold text-neon shrink-0">{formatCurrency(d.amount)}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><span className="text-on-surface-variant">Joined: </span><span className="text-white">{d.user_joined ? new Date(d.user_joined).toLocaleDateString() : "—"}</span></div>
+                        <div><span className="text-on-surface-variant">Plan: </span><span className="text-neon">{d.plan_name ?? "—"}</span></div>
+                        {d.crypto_type && (
+                          <div><span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${cryptoCls}`}>{d.crypto_type}{d.network ? ` · ${d.network}` : ""}</span></div>
+                        )}
+                        {d.tx_hash && (
+                          <div className="col-span-2"><span className="text-on-surface-variant">TX: </span><span className="font-mono text-[10px] text-neon/80 break-all">{d.tx_hash}</span></div>
+                        )}
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <Button size="sm" onClick={() => handleDeposit(d.id, "approve")} disabled={isProcessing} className="flex-1 gap-1.5 bg-neon text-black hover:bg-neon/90">
+                          {isProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                          Accept
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleDeposit(d.id, "reject")} disabled={isProcessing} className="flex-1 gap-1.5 border border-red-500/30 text-red-400 hover:bg-red-500/10">
+                          <XCircle className="h-3 w-3" /> Decline
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop table layout */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 text-left text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+                      <th className="pb-3 pr-4">Client</th>
+                      <th className="pb-3 pr-4">Email</th>
+                      <th className="pb-3 pr-4">Signed Up</th>
+                      <th className="pb-3 pr-4">Investment Plan</th>
+                      <th className="pb-3 pr-4">Amount</th>
+                      <th className="pb-3 pr-4">Via</th>
+                      <th className="pb-3 pr-4">TX Hash</th>
+                      <th className="pb-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {deposits.map((d) => {
+                      const isProcessing = processing === d.id;
+                      const name = d.user_full_name ?? d.user_email ?? "Unknown";
+                      const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+                      const cryptoCls = CRYPTO_COLORS[d.crypto_type ?? ""] ?? "text-white border-white/20 bg-white/5";
+                      return (
+                        <tr key={d.id} className="group">
+                          <td className="py-4 pr-4">
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-xs font-bold text-neon">{initials}</div>
+                              <span className="font-bold text-white whitespace-nowrap">{name}</span>
                             </div>
-                            <span className="font-bold text-white whitespace-nowrap">{name}</span>
-                          </div>
-                        </td>
-                        {/* Email */}
-                        <td className="py-4 pr-4">
-                          <span className="text-on-surface-variant">{d.user_email ?? "—"}</span>
-                        </td>
-                        {/* Signup date */}
-                        <td className="py-4 pr-4 whitespace-nowrap">
-                          <span className="text-on-surface-variant text-xs">
-                            {d.user_joined ? new Date(d.user_joined).toLocaleDateString() : "—"}
-                          </span>
-                        </td>
-                        {/* Plan */}
-                        <td className="py-4 pr-4">
-                          {d.plan_name ? (
-                            <span className="rounded-full border border-neon/30 bg-neon/10 px-2.5 py-1 text-[11px] font-bold text-neon whitespace-nowrap">
-                              {d.plan_name}
-                            </span>
-                          ) : (
-                            <span className="text-on-surface-variant/50 text-xs italic">Not specified</span>
-                          )}
-                        </td>
-                        {/* Amount */}
-                        <td className="py-4 pr-4">
-                          <span className="font-extrabold text-neon text-base whitespace-nowrap">
-                            {formatCurrency(d.amount)}
-                          </span>
-                        </td>
-                        {/* Crypto */}
-                        <td className="py-4 pr-4">
-                          {d.crypto_type ? (
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${cryptoCls}`}>
-                              {d.crypto_type}{d.network ? ` · ${d.network}` : ""}
-                            </span>
-                          ) : <span className="text-on-surface-variant/50">—</span>}
-                        </td>
-                        {/* TX Hash */}
-                        <td className="py-4 pr-4 max-w-[140px]">
-                          {d.tx_hash ? (
-                            <span className="block truncate font-mono text-[10px] text-neon/80" title={d.tx_hash}>
-                              {d.tx_hash}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] italic text-on-surface-variant/50">None provided</span>
-                          )}
-                        </td>
-                        {/* Actions */}
-                        <td className="py-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleDeposit(d.id, "approve")}
-                              disabled={isProcessing}
-                              className="gap-1.5 bg-neon text-black hover:bg-neon/90"
-                            >
-                              {isProcessing ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                              ) : (
-                                <CheckCircle className="h-3 w-3" />
-                              )}
-                              Accept
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDeposit(d.id, "reject")}
-                              disabled={isProcessing}
-                              className="gap-1.5 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                            >
-                              <XCircle className="h-3 w-3" />
-                              Decline
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                          <td className="py-4 pr-4"><span className="text-on-surface-variant">{d.user_email ?? "—"}</span></td>
+                          <td className="py-4 pr-4 whitespace-nowrap"><span className="text-on-surface-variant text-xs">{d.user_joined ? new Date(d.user_joined).toLocaleDateString() : "—"}</span></td>
+                          <td className="py-4 pr-4">
+                            {d.plan_name ? (
+                              <span className="rounded-full border border-neon/30 bg-neon/10 px-2.5 py-1 text-[11px] font-bold text-neon whitespace-nowrap">{d.plan_name}</span>
+                            ) : (
+                              <span className="text-on-surface-variant/50 text-xs italic">Not specified</span>
+                            )}
+                          </td>
+                          <td className="py-4 pr-4"><span className="font-extrabold text-neon text-base whitespace-nowrap">{formatCurrency(d.amount)}</span></td>
+                          <td className="py-4 pr-4">
+                            {d.crypto_type ? (
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${cryptoCls}`}>{d.crypto_type}{d.network ? ` · ${d.network}` : ""}</span>
+                            ) : <span className="text-on-surface-variant/50">—</span>}
+                          </td>
+                          <td className="py-4 pr-4 max-w-[140px]">
+                            {d.tx_hash ? (
+                              <span className="block truncate font-mono text-[10px] text-neon/80" title={d.tx_hash}>{d.tx_hash}</span>
+                            ) : (
+                              <span className="text-[10px] italic text-on-surface-variant/50">None provided</span>
+                            )}
+                          </td>
+                          <td className="py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button size="sm" onClick={() => handleDeposit(d.id, "approve")} disabled={isProcessing} className="gap-1.5 bg-neon text-black hover:bg-neon/90">
+                                {isProcessing ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                                Accept
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => handleDeposit(d.id, "reject")} disabled={isProcessing} className="gap-1.5 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                                <XCircle className="h-3 w-3" /> Decline
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </GlassCard>
       </FadeIn>
@@ -326,46 +330,59 @@ export function AdminClients() {
           {users.length === 0 ? (
             <p className="text-sm text-on-surface-variant">No clients yet.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-white/10 text-left text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
-                    <th className="pb-3 pr-4">Name</th>
-                    <th className="pb-3 pr-4">Email</th>
-                    <th className="pb-3 pr-4">Joined</th>
-                    <th className="pb-3 text-right">Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {users.map((u) => {
-                    const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
-                    return (
-                      <tr key={u.id} className="group">
-                        <td className="py-3 pr-4">
-                          <div className="flex items-center gap-2">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-xs font-bold text-neon">
-                              {initials}
+            <>
+              {/* Mobile cards */}
+              <div className="space-y-3 md:hidden">
+                {users.map((u) => {
+                  const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+                  return (
+                    <div key={u.id} className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-sm font-bold text-neon">{initials}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-white truncate">{u.full_name ?? "—"}</p>
+                        <p className="text-xs text-on-surface-variant truncate">{u.email}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="font-bold text-neon text-sm">{formatCurrency(u.wallet_balance)}</p>
+                        <p className="text-[10px] text-on-surface-variant">{new Date((u as unknown as {created_at: string}).created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop table */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/10 text-left text-[11px] font-bold uppercase tracking-wider text-on-surface-variant">
+                      <th className="pb-3 pr-4">Name</th>
+                      <th className="pb-3 pr-4">Email</th>
+                      <th className="pb-3 pr-4">Joined</th>
+                      <th className="pb-3 text-right">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {users.map((u) => {
+                      const initials = (u.full_name ?? u.email).split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+                      return (
+                        <tr key={u.id} className="group">
+                          <td className="py-3 pr-4">
+                            <div className="flex items-center gap-2">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neon/20 bg-neon/10 text-xs font-bold text-neon">{initials}</div>
+                              <span className="font-bold text-white whitespace-nowrap">{u.full_name ?? "—"}</span>
                             </div>
-                            <span className="font-bold text-white whitespace-nowrap">{u.full_name ?? "—"}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 pr-4">
-                          <span className="text-on-surface-variant">{u.email}</span>
-                        </td>
-                        <td className="py-3 pr-4 whitespace-nowrap">
-                          <span className="text-xs text-on-surface-variant">
-                            {new Date((u as unknown as {created_at: string}).created_at).toLocaleDateString()}
-                          </span>
-                        </td>
-                        <td className="py-3 text-right">
-                          <span className="font-bold text-neon">{formatCurrency(u.wallet_balance)}</span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          </td>
+                          <td className="py-3 pr-4"><span className="text-on-surface-variant">{u.email}</span></td>
+                          <td className="py-3 pr-4 whitespace-nowrap"><span className="text-xs text-on-surface-variant">{new Date((u as unknown as {created_at: string}).created_at).toLocaleDateString()}</span></td>
+                          <td className="py-3 text-right"><span className="font-bold text-neon">{formatCurrency(u.wallet_balance)}</span></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </GlassCard>
       </FadeIn>

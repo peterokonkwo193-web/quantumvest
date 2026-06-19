@@ -119,7 +119,7 @@ export function HomePage() {
           <span className="label-mono mb-6 inline-block rounded-full border border-neon/30 bg-neon/5 px-4 py-2 text-neon">
             Trusted by 12,000+ Investors Worldwide
           </span>
-          <h1 className="mx-auto max-w-5xl text-5xl font-extrabold leading-tight tracking-tight text-white md:text-7xl">
+          <h1 className="mx-auto max-w-5xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl md:text-7xl">
             Invest Smart.
             <br />
             <span className="text-neon neon-glow-text">Earn Every Day.</span>
@@ -145,7 +145,7 @@ export function HomePage() {
         <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 md:grid-cols-4">
           {stats.map((s) => (
             <FadeIn key={s.label} className="text-center">
-              <p className="text-4xl font-extrabold text-white md:text-5xl">
+              <p className="text-3xl font-extrabold text-white md:text-5xl">
                 <AnimatedCounter
                   end={s.value}
                   prefix={s.prefix}
@@ -322,7 +322,7 @@ export function HomePage() {
       {/* CTA */}
       <section className="section-padding">
         <FadeIn>
-          <div className="mx-auto max-w-3xl rounded-[32px] border border-neon/20 bg-neon/5 p-12 text-center">
+          <div className="mx-auto max-w-3xl rounded-[32px] border border-neon/20 bg-neon/5 p-6 text-center sm:p-10 md:p-12">
             <span className="label-mono text-neon">Get Started Today</span>
             <h2 className="mt-4 text-3xl font-bold text-white md:text-4xl">Ready to Grow Your Wealth?</h2>
             <p className="mt-4 text-on-surface-variant">

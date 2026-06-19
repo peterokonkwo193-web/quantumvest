@@ -45,7 +45,7 @@ function PlanCard({ plan, index }: { plan: InvestmentPlan; index: number }) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       whileHover={{ y: -6 }}
-      className={`relative flex flex-col rounded-[24px] border p-8 transition-all ${
+      className={`relative flex flex-col rounded-[24px] border p-5 md:p-8 transition-all ${
         plan.highlighted
           ? "border-neon/40 bg-neon/5 shadow-[0_0_40px_rgba(198,255,0,0.15)] scale-[1.02]"
           : "border-white/10 bg-white/[0.03] hover:border-white/20"
@@ -79,7 +79,7 @@ function PlanCard({ plan, index }: { plan: InvestmentPlan; index: number }) {
       {/* ROI */}
       <div className="mb-1">
         <span
-          className={`text-6xl font-extrabold leading-none ${
+          className={`text-5xl font-extrabold leading-none md:text-6xl ${
             plan.highlighted ? "text-neon neon-glow-text" : "text-white"
           }`}
         >
@@ -207,7 +207,7 @@ export function PlansPage() {
             <Loader2 className="h-8 w-8 animate-spin text-neon" />
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {plans.map((plan, i) => (
               <PlanCard key={plan.id} plan={plan} index={i} />
             ))}

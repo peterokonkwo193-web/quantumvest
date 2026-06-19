@@ -30,7 +30,7 @@ export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-surface-container-lowest/50">
       <div className="mx-auto max-w-7xl section-padding">
-        <div className="grid gap-12 md:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 md:gap-10 lg:grid-cols-4">
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2">
               <Signal className="h-5 w-5 text-neon" fill="#C6FF00" />
