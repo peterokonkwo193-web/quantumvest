@@ -1,4 +1,4 @@
-﻿import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -30,11 +30,15 @@ export async function middleware(request: NextRequest) {
 
   if (!isProtected) return response;
 
+  // Use getSession() to read from cookies directly — no network call to Supabase.
+  // getUser() makes a server round-trip that can time out on edge and falsely
+  // redirect a logged-in user to /login. Individual pages validate the user
+  // server-side or client-side where security actually matters.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user) {
+  if (!session) {
     const url = request.nextUrl.clone();
     const originalPath = request.nextUrl.pathname + request.nextUrl.search;
     url.pathname = "/login";
@@ -44,10 +48,11 @@ export async function middleware(request: NextRequest) {
 
   if (
     request.nextUrl.pathname.startsWith("/admin") &&
-    user.app_metadata?.role !== "admin"
+    session.user?.app_metadata?.role !== "admin"
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

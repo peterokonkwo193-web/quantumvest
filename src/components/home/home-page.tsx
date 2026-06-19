@@ -238,7 +238,7 @@ export function HomePage() {
                       variant={plan.highlighted ? "neon" : "outline"}
                       asChild
                     >
-                      <Link href={`/signup?plan=${plan.id}`}>Get Started</Link>
+                      <Link href={`/dashboard/wallet?plan=${plan.id}&tab=deposit`}>Get Started</Link>
                     </Button>
                   </div>
                 </div>

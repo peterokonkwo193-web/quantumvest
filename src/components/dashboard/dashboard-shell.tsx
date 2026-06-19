@@ -174,7 +174,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Main content */}
       <main className="min-h-screen lg:pl-64">
-        <div className="section-padding">{children}</div>
+        {children}
       </main>
     </div>
   );
