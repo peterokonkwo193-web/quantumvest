@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdminResponse, requireAdmin } from "@/lib/admin-auth";
 import { createAdminSupabaseClient } from "@/lib/supabase-admin";
-import { sendDepositApprovedEmail, sendWithdrawalApprovedEmail } from "@/lib/emailjs";
+import { sendDepositApprovedEmail, sendWithdrawalApprovedEmail } from "@/lib/mailer";
 
 const schema = z.object({
   type: z.enum(["withdrawal", "transaction", "deposit", "kyc"]),
