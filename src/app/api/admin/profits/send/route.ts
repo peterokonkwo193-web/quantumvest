@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdminResponse, requireAdmin } from "@/lib/admin-auth";
 import { createAdminSupabaseClient } from "@/lib/supabase-admin";
-import { sendProfitEmail } from "@/lib/mailer";
+import { sendProfitEmail } from "@/lib/emailjs";
 
 const schema = z.object({
   user_id: z.string().uuid("Invalid user ID"),
@@ -102,20 +102,28 @@ export async function POST(request: Request) {
     message: `$${amount.toLocaleString()} has been credited to your wallet balance${description ? ` — ${description}` : ""}.`,
   });
 
-  // Send email notification to client (non-blocking — failure won't affect the response)
-  sendProfitEmail({
-    toName:      targetUser.full_name ?? "",
-    toEmail:     targetUser.email,
-    profitLabel: label,
-    amount,
-    description,
-    newBalance,
-  }).catch((err) => console.error("[Email] Profit email failed:", err));
+  // Send email notification to client
+  let emailStatus: string;
+  try {
+    await sendProfitEmail({
+      toName:      targetUser.full_name ?? "",
+      toEmail:     targetUser.email,
+      profitLabel: label,
+      amount,
+      description,
+      newBalance,
+    });
+    emailStatus = "sent";
+  } catch (err) {
+    emailStatus = err instanceof Error ? err.message : String(err);
+    console.error("[Email] Profit email failed:", emailStatus);
+  }
 
   return NextResponse.json({
     success: true,
     profit,
     new_balance: newBalance,
     user_name: targetUser.full_name ?? targetUser.email,
+    email_status: emailStatus,
   });
 }

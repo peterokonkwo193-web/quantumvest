@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAdminResponse, requireAdmin } from "@/lib/admin-auth";
-import { sendProfitEmail } from "@/lib/mailer";
+import { sendProfitEmail } from "@/lib/emailjs";
 
 const schema = z.object({
   user_id: z.string().uuid("Invalid user ID"),
