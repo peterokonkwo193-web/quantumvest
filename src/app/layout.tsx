@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/footer";
 import { AIAssistant } from "@/components/assistant/ai-assistant";
 import { GridBackground } from "@/components/animations/motion-components";
 import { MainContent } from "@/components/layout/main-content";
+import { ActivityTicker } from "@/components/home/activity-ticker";
 import "./globals.css";
 import "@/styles/custom.css";
 
@@ -53,6 +54,7 @@ export default function RootLayout({
         <Navbar />
         <MainContent>{children}</MainContent>
         <Footer />
+        <ActivityTicker />
         <AIAssistant />
       </body>
     </html>
